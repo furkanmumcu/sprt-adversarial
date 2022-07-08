@@ -41,8 +41,8 @@ loader_patchfool = dt.get_loaders(patchfool_path)
 # define surrogate model
 device = torch.device("cuda")
 
-#model = models.resnet50(pretrained=True).to(device)
-model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
+model = models.resnet50(pretrained=True).to(device)
+#model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
 #model = models.inception_v3(pretrained=True).to(device)
 #model = deit_small_patch16_224(pretrained=True).to(device)
 deit = False
@@ -51,47 +51,8 @@ model.eval()  # ?
 
 
 if __name__ == '__main__':
-	correct = 0
-	true_probs = []
 	s = 0
 	summ = 0
-
-	# get clean object's accuracy
-	for i, (X, y) in enumerate(loader_clean):
-		print(str(i) + " of " + str(len(loader_clean)))
-		y = torch.ones(10) * lbl_dict[int(y[0])]
-		y = y.type(torch.long)
-
-		X = X.to(device)
-		y = y.to(device)
-		with torch.no_grad():
-			out = model(X)
-
-		if deit:
-			out = out[0]
-
-		_, pre = torch.max(out.data, 1)
-		correct += (pre == y).sum()
-
-		probabilities = torch.nn.functional.softmax(out, dim=1)  #dim 1 dimension meaning?
-		top5_prob, top5_catid = torch.topk(probabilities, 1000)
-
-		for j in range(len(y)):
-			true_label = y[j].item()
-			#if image predicted correctly get first prob, else find true label's index and get prob
-			if true_label == top5_catid[j][0].item():
-				prob = top5_prob[j][0].item()
-				true_probs.append(prob)
-			else:
-				true_label_index = (top5_catid[j] == true_label).nonzero(as_tuple=False).item()
-				prob = top5_prob[j][true_label_index].item()
-				true_probs.append(prob)
-
-		print(i)  # top5_prob[0][0].item()
-
-	print(len(true_probs))
-	print('Accuracy of clean: %f %%' % (100 * float(correct) / 500))
-	offset = (1 - np.asarray(true_probs))
 
 	# get adv dataset's accuracy and combine them
 	for i, ((X1, y1), (X2, y2)) in enumerate(zip(loader_fgsm, cycle(loader_patchfool))):
@@ -112,7 +73,6 @@ if __name__ == '__main__':
 		X2 = X2.to(device)
 		y2 = y2.to(device)
 
-		#model = models.resnet50(pretrained=True).to(device)
 		model.eval()
 		with torch.no_grad():
 			out = model(X1_2)

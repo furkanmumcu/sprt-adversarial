@@ -93,10 +93,24 @@ if __name__ == '__main__':
 	correct2 = 0
 	total2 = 0
 
+	#empty tensors for saving adv data and corresponding labels
+	data_clt = torch.tensor([])
+	data_clt = data_clt.to(device)
+	labels_clt = torch.tensor([])
+	labels_clt = labels_clt.to(device)
+
 	for i, (images, labels) in enumerate(dloader):
 		print(str(i) + " of " + str(len(dloader)))
+		labels = torch.ones(10) * lbl_dict[int(labels[0])]
+		labels = labels.type(torch.long)
+
 		images = fgsm_attack(model, loss, images, labels, eps).to(device)
 		labels = labels.to(device)
+
+		#save adv data and corresponding labels
+		data_clt = torch.cat((data_clt, images), 0)
+		labels_clt = torch.cat((labels_clt, labels), 0)
+
 		outputs = model(images)
 
 		_, pre = torch.max(outputs.data, 1)
@@ -123,3 +137,10 @@ if __name__ == '__main__':
 
 	print('Accuracy of test text: %f %%' % (100 * float(correct) / (total*10)))
 	print('Accuracy of test text: %f %%' % (100 * float(correct2) / (total2 * 10)))
+
+	print(data_clt.shape)
+	print(labels_clt.shape)
+
+	#torch.save(data_clt, 'data.pt')
+	#torch.save(labels_clt, 'labels.pt')
+

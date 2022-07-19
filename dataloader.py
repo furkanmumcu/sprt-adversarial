@@ -15,6 +15,8 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data.dataset import Dataset
 from typing import Any, Callable, cast, Dict, List, Optional, Tuple
 
+import json
+
 mu = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
 
@@ -46,6 +48,13 @@ lbl_dict_ids = dict(
 )
 
 lbl_dict = dict([(0, 0), (1, 217), (2, 482), (3, 491), (4, 497), (5, 566), (6, 569), (7, 571), (8, 574), (9, 701)])
+
+
+#dics needed for our testing set
+def get_test_dict(dir):
+	with open(dir) as json_data:
+		index = json.load(json_data)
+	return index
 
 
 class CustomImageFolder(ImageFolder):
@@ -138,3 +147,25 @@ if __name__ == '__main__':
 
 	print('Accuracy of test text: %f %%' % (100 * float(correct) / (total * 10)))
 '''
+
+# get clean dataset tensor file
+if __name__ == '__main__':
+	dct = get_test_dict('C:/Users/furkan/Desktop/projects/combine-attack/data/test_data_1/test_dict.txt')
+	test_data = 'C:/Users/furkan/Desktop/projects/combine-attack/data/test_data_1/sprt-test-set'
+	loader = get_loaders(test_data)
+
+	data_clt = torch.tensor([])
+	labels_clt = torch.tensor([])
+	for i, (images, labels) in enumerate(loader):
+		print(str(i) + " of " + str(len(loader)))
+
+		labels = torch.ones(10) * dct[str(int(labels[0]))]
+
+		data_clt = torch.cat((data_clt, images), 0)
+		labels_clt = torch.cat((labels_clt, labels), 0)
+
+	print(data_clt.shape)
+	print(labels_clt.shape)
+
+	torch.save(data_clt, 'test_data.pt')
+	torch.save(labels_clt, 'test_labels.pt')

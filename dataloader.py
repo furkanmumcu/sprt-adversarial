@@ -78,12 +78,12 @@ class CustomImageFolder(ImageFolder):
 		return sample, target
 
 
-def get_loaders(dir):
+def get_loaders(dir, size=224):
 	#valdir = path.join(args.data_dir, 'val')
 	valdir = 'C:/Users/furkan/Desktop/projects/combine-attack/data/imagenette2-320-tiny50/val'
 	val_dataset = CustomImageFolder(dir,
-									transforms.Compose([transforms.Resize(224),
-														transforms.CenterCrop(224),
+									transforms.Compose([transforms.Resize(size),
+														transforms.CenterCrop(size),
 														transforms.ToTensor(),
 														transforms.Normalize(mean=mu, std=std)
 														]))
@@ -152,7 +152,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
 	dct = get_test_dict('C:/Users/furkan/Desktop/projects/combine-attack/data/test_data_1/test_dict.txt')
 	test_data = 'C:/Users/furkan/Desktop/projects/combine-attack/data/test_data_1/sprt-test-set'
-	loader = get_loaders(test_data)
+	loader = get_loaders(test_data, size=299)
 
 	data_clt = torch.tensor([])
 	labels_clt = torch.tensor([])

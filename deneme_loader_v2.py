@@ -32,7 +32,7 @@ if __name__ == '__main__':
 	deit = False
 
 	dloader_adv_fgsm = dt.get_loaders_v2('data/test_data_1/sprt-test-set-fgsm-1/test_data.pt', 'data/test_data_1/sprt-test-set-fgsm-1/test_labels.pt')
-	dloader_clean = dt.get_loaders_v2('data/test_data_1/sprt-test-set-clean-pt/test_data.pt', 'data/test_data_1/sprt-test-set-clean-pt/test_labels.pt')
+	dloader_clean = dt.get_loaders_v2('data/test_data_1/sprt-test-set-clean-pt-224/test_data.pt', 'data/test_data_1/sprt-test-set-clean-pt-224/test_labels.pt')
 
 	print("True Image & Predicted Label")
 

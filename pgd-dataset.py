@@ -41,13 +41,13 @@ def pgd_attack(model, images, labels, eps=0.3, alpha=2 / 255, iters=40):
 
 
 device = torch.device("cuda")
-model = models.inception_v3(pretrained=True).to(device)
-#model = models.resnet50(pretrained=True).to(device)
+#model = models.inception_v3(pretrained=True).to(device)
+model = models.resnet50(pretrained=True).to(device)
 #model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
 vit = False
 
-dloader_clean = dt.get_loaders_v2('data/test_data_1/sprt-test-set-clean-pt-299/test_data.pt', 'data/test_data_1/sprt-test-set-clean-pt-299/test_labels.pt')
-dloader_pgd = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/test_labels.pt')
+dloader_clean = dt.get_loaders_v2('data/test_data_1/sprt-test-set-clean-pt-224/test_data.pt', 'data/test_data_1/sprt-test-set-clean-pt-224/test_labels.pt')
+dloader_pgd = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/resnet/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/resnet/test_labels.pt')
 
 if check_mode:
 	model.eval()
@@ -69,7 +69,8 @@ if check_mode:
 		total += 1
 		correct += (pre == labels).sum()
 
-	print('Accuracy of test text: %f %%' % (100 * float(correct) / (total*10)))  # clean inception acc: 76.86
+	print('Accuracy of test text: %f %%' % (100 * float(correct) / (total*10)))  # clean inception acc: 76.86 & adv inception acc: 0.020
+																				# clean resnet acc: 74.50 & adv resnet acc: 0.00
 
 if generate_mode:
 	model.eval()
@@ -82,11 +83,11 @@ if generate_mode:
 		labels = labels.to(device)
 		outputs = model(images)
 
-		#torch.save(images, 'chunk/tensor' + str(i) + '.pt')
+		torch.save(images, 'chunk/tensor' + str(i) + '.pt')
 
 		_, pre = torch.max(outputs.data, 1)
 
 		total += 1
 		correct += (pre == labels).sum()
 
-	print('Accuracy of test text: %f %%' % (100 * float(correct) / (total*10)))  # adv inception acc: 0.020
+	print('Accuracy of test text: %f %%' % (100 * float(correct) / (total*10)))

@@ -1,20 +1,21 @@
 import torch
-# This is a sample Python script.
+import numpy as np
+import matplotlib.pyplot as plt
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
-    x = torch.load('tensor0.pt')
-    print(1)
+    y = list(range(1, 501))
+    y = np.asarray(y)
+    y = y * 10
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    print(1)
+    r1 = np.load('results/1/result.npy')
+    r2 = np.load('results/2/result.npy')
+    r3 = np.load('results/3/result.npy')
+    r4 = np.load('results/4/result.npy')
+    r5 = np.load('results/5/result.npy')
+    print(2)
+
+    plt.plot(y, r5)
+    plt.axhline(y=0, color='r')
+    plt.show()
 

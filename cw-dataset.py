@@ -22,7 +22,7 @@ def cw_l2_attack(model, images, labels, targeted=False, c=1e-4, kappa=0, max_ite
 	images = images.to(device)
 	labels = labels.to(device)
 
-	# Define f-function
+	# Define f-function63
 	def f(x):
 
 		outputs = model(x)

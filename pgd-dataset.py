@@ -13,9 +13,10 @@ import torchvision.transforms as transforms
 import dataloader as dt
 import torchshow as ts
 import timm
+from models.DeiT import deit_base_patch16_224, deit_tiny_patch16_224, deit_small_patch16_224
 
-check_mode = True
-generate_mode = False
+check_mode = False
+generate_mode = True
 
 
 def pgd_attack(model, images, labels, eps=0.3, alpha=2 / 255, iters=40):
@@ -28,6 +29,8 @@ def pgd_attack(model, images, labels, eps=0.3, alpha=2 / 255, iters=40):
 	for i in range(iters):
 		images.requires_grad = True
 		outputs = model(images)
+		if deit:
+			outputs = outputs[0]
 
 		model.zero_grad()
 		cost = loss(outputs, labels).to(device)
@@ -42,9 +45,12 @@ def pgd_attack(model, images, labels, eps=0.3, alpha=2 / 255, iters=40):
 
 device = torch.device("cuda")
 #model = models.inception_v3(pretrained=True).to(device)
-model = models.resnet50(pretrained=True).to(device)
-#model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
-vit = False
+#model = models.resnet50(pretrained=True).to(device)
+model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
+#model = deit_small_patch16_224(pretrained=True).to(device)
+
+is_Transform = False
+deit = False
 
 dloader_clean = dt.get_loaders_v2('data/test_data_1/sprt-test-set-clean-pt-224/test_data.pt', 'data/test_data_1/sprt-test-set-clean-pt-224/test_labels.pt')
 dloader_pgd = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/resnet/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/resnet/test_labels.pt')
@@ -58,7 +64,7 @@ if check_mode:
 		images = images.to(device)
 		labels = labels.to(device)
 
-		if vit:
+		if is_Transform:
 			transform = transforms.Resize((224, 224))
 			images = transform(images)
 
@@ -82,6 +88,8 @@ if generate_mode:
 		images = pgd_attack(model, images, labels)
 		labels = labels.to(device)
 		outputs = model(images)
+		if deit:
+			outputs = outputs[0]
 
 		torch.save(images, 'chunk/tensor' + str(i) + '.pt')
 

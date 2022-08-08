@@ -26,13 +26,27 @@ if __name__ == '__main__':
 	use_cuda = True
 
 	device = torch.device("cuda" if use_cuda else "cpu")
-	model = models.resnet50(pretrained=True).to(device)
+	#model = models.resnet50(pretrained=True).to(device)
+	#model = models.inception_v3(pretrained=True).to(device)
 	#model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
 	#model = deit_small_patch16_224(pretrained=True).to(device)
-	deit = False
+	#model = deit_tiny_patch16_224(pretrained=True).to(device)
+	model = deit_base_patch16_224(pretrained=True).to(device)
+	deit = True
+	is_transform = False
 
-	dloader_adv_fgsm = dt.get_loaders_v2('data/test_data_1/sprt-test-set-fgsm-1/test_data.pt', 'data/test_data_1/sprt-test-set-fgsm-1/test_labels.pt')
-	dloader_clean = dt.get_loaders_v2('data/test_data_1/sprt-test-set-clean-pt-224/test_data.pt', 'data/test_data_1/sprt-test-set-clean-pt-224/test_labels.pt')
+	#loader_adv_fgsm = dt.get_loaders_v2('data/test_data_1/sprt-test-set-fgsm-1/test_data.pt', 'data/test_data_1/sprt-test-set-fgsm-1/test_labels.pt')
+	#loader_clean = dt.get_loaders_v2('data/test_data_1/sprt-test-set-clean-pt-224/test_data.pt', 'data/test_data_1/sprt-test-set-clean-pt-224/test_labels.pt')
+	#loader_clean_299 = dt.get_loaders_v2('data/test_data_1/sprt-test-set-clean-pt-299/test_data.pt', 'data/test_data_1/sprt-test-set-clean-pt-299/test_labels.pt')
+
+	#loader_pgd_resnet = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/resnet/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/resnet/test_labels.pt')
+	#loader_pgd_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/inception/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/inception/test_labels.pt')
+	#loader_pgd_deit_s = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/deit-s/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/deit-s/test_labels.pt')
+	loader_pgd_vit_base = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/vit-base/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/vit-base/test_labels.pt')
+	#loader_cw = dt.get_loaders_v2('data/test_data_1/sprt-test-set-cw-1/test_data.pt', 'data/test_data_1/sprt-test-set-cw-1/test_labels.pt')
+	#loader_patchfool_s = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pfool-s/test_data.pt', 'data/test_data_1/sprt-test-set-pfool-s/test_labels.pt')
+	#loader_patchfool_t = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pfool-t/test_data.pt', 'data/test_data_1/sprt-test-set-pfool-t/test_labels.pt')
+	#loader_patchfool_b = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pfool-b/test_data.pt', 'data/test_data_1/sprt-test-set-pfool-b/test_labels.pt')
 
 	print("True Image & Predicted Label")
 
@@ -41,11 +55,16 @@ if __name__ == '__main__':
 	correct = 0
 	total = 0
 
-	for i, (images, labels) in enumerate(dloader_clean):
-		print(str(i) + " of " + str(len(dloader_clean)))
+	for i, (images, labels) in enumerate(loader_pgd_vit_base):
+		print(str(i) + " of " + str(len(loader_pgd_vit_base)))
 
 		images = images.to(device)
 		labels = labels.to(device)
+
+		if is_transform:
+			transform = transforms.Resize((224, 224))
+			if images.shape[2] == 299:
+				images = transform(images)
 
 		outputs = model(images)
 		if deit:

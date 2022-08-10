@@ -20,6 +20,28 @@ from PIL import Image
 lbl_dict = dict([(0, 0), (1, 217), (2, 482), (3, 491), (4, 497), (5, 566), (6, 569), (7, 571), (8, 574), (9, 701)])
 
 
+def pgd_attack(model, images, labels, eps=0.3, alpha=2 / 255, iters=40):
+	images = images.to(device)
+	labels = labels.to(device)
+	loss = nn.CrossEntropyLoss()
+
+	ori_images = images.data
+
+	for i in range(iters):
+		images.requires_grad = True
+		outputs = model(images)
+
+		model.zero_grad()
+		cost = loss(outputs, labels).to(device)
+		cost.backward()
+
+		adv_images = images + alpha * images.grad.sign()
+		eta = torch.clamp(adv_images - ori_images, min=-eps, max=eps)
+		images = torch.clamp(ori_images + eta, min=0, max=1).detach_()
+
+	return images
+
+
 def fgsm_attack(model, loss, images, labels, eps):
 	images = images.to(device)
 	labels = labels.to(device)
@@ -104,7 +126,8 @@ if __name__ == '__main__':
 		labels = torch.ones(10) * lbl_dict[int(labels[0])]
 		labels = labels.type(torch.long)
 
-		images = fgsm_attack(model, loss, images, labels, eps).to(device)
+		#images = fgsm_attack(model, loss, images, labels, eps).to(device)
+		images = pgd_attack(model, images, labels)
 		labels = labels.to(device)
 
 		#save adv data and corresponding labels

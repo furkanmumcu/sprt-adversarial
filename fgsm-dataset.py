@@ -27,6 +27,7 @@ def pgd_attack(model, images, labels, eps=0.3, alpha=2 / 255, iters=40):
 
 	ori_images = images.data
 
+	adv_images = 0
 	for i in range(iters):
 		images.requires_grad = True
 		outputs = model(images)
@@ -35,6 +36,7 @@ def pgd_attack(model, images, labels, eps=0.3, alpha=2 / 255, iters=40):
 		cost = loss(outputs, labels).to(device)
 		cost.backward()
 
+		#adv_images
 		adv_images = images + alpha * images.grad.sign()
 		eta = torch.clamp(adv_images - ori_images, min=-eps, max=eps)
 		images = torch.clamp(ori_images + eta, min=0, max=1).detach_()
@@ -126,8 +128,8 @@ if __name__ == '__main__':
 		labels = torch.ones(10) * lbl_dict[int(labels[0])]
 		labels = labels.type(torch.long)
 
-		#images = fgsm_attack(model, loss, images, labels, eps).to(device)
-		images = pgd_attack(model, images, labels)
+		images = fgsm_attack(model, loss, images, labels, eps).to(device)
+		#images = pgd_attack(model, images, labels)
 		labels = labels.to(device)
 
 		#save adv data and corresponding labels

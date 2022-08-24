@@ -112,11 +112,11 @@ class DataFromFile(Dataset):
 		return len(self.data)
 
 
-def get_loaders_v2(data_path, label_path, batch=10):
+def get_loaders_v2(data_path, label_path, batch=10, shuffle=False):
 	dataset = DataFromFile(data_path, label_path)
 
 	dataset.__getitem__(1)
-	val_loader = torch.utils.data.DataLoader(dataset, batch_size=batch, shuffle=False, num_workers=0, pin_memory=False)
+	val_loader = torch.utils.data.DataLoader(dataset, batch_size=batch, shuffle=shuffle, num_workers=0, pin_memory=False)
 	return val_loader
 
 

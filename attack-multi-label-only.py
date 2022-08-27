@@ -144,6 +144,7 @@ def attack(a, b, multi_case):
 
 			strategies = [(X1, y1), (X2, y2), (X3, y3)]
 
+			'''
 			for j in range(len(strategy_pairs3)):  # 3 for
 				X_first = strategies[strategy_pairs3[j][0]][0]
 				y_first = strategies[strategy_pairs3[j][0]][1]
@@ -186,6 +187,9 @@ def attack(a, b, multi_case):
 				deltas = np.log(deltas1 / deltas2)
 
 				scores[j] = deltas.sum() + scores[j]
+			'''
+
+			scores = calculate_pair_scores(strategies, strategy_pairs3, model, scores)
 
 			qnumber = (i + 1) * (3 * b_size)  # since we are sending  images to the target model
 			print('current scores: ')

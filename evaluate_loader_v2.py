@@ -28,11 +28,12 @@ if __name__ == '__main__':
 	device = torch.device("cuda" if use_cuda else "cpu")
 	#model = models.resnet50(pretrained=True).to(device)
 	#model = models.inception_v3(pretrained=True).to(device)
-	#model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
+	#model = models.vgg16(pretrained=True).to(device)
+	model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
 	#model = deit_small_patch16_224(pretrained=True).to(device)
 	#model = deit_tiny_patch16_224(pretrained=True).to(device)
-	model = deit_base_patch16_224(pretrained=True).to(device)
-	deit = True
+	#model = deit_base_patch16_224(pretrained=True).to(device)
+	deit = False
 	is_transform = False
 
 	#loader_adv_fgsm = dt.get_loaders_v2('data/test_data_1/sprt-test-set-fgsm-1/test_data.pt', 'data/test_data_1/sprt-test-set-fgsm-1/test_labels.pt')
@@ -43,7 +44,8 @@ if __name__ == '__main__':
 	#loader_pgd_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/inception/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/inception/test_labels.pt')
 	#loader_pgd_deit_s = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/deit-s/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/deit-s/test_labels.pt')
 	#loader_pgd_vit_base = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/vit-base/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/vit-base/test_labels.pt')
-	loader_pna = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna/test_data.pt', 'data/test_data_1/sprt-test-set-pna/test_labels.pt')
+	#loader_pna = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna/test_data.pt', 'data/test_data_1/sprt-test-set-pna/test_labels.pt')
+	loader_pna_deits = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna-deits/test_data.pt', 'data/test_data_1/sprt-test-set-pna-deits/test_labels.pt')
 	#loader_cw = dt.get_loaders_v2('data/test_data_1/sprt-test-set-cw-1/test_data.pt', 'data/test_data_1/sprt-test-set-cw-1/test_labels.pt')
 	#loader_patchfool_s = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pfool-s/test_data.pt', 'data/test_data_1/sprt-test-set-pfool-s/test_labels.pt')
 	#loader_patchfool_t = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pfool-t/test_data.pt', 'data/test_data_1/sprt-test-set-pfool-t/test_labels.pt')
@@ -56,8 +58,8 @@ if __name__ == '__main__':
 	correct = 0
 	total = 0
 
-	for i, (images, labels) in enumerate(loader_pna):
-		print(str(i) + " of " + str(len(loader_pna)))
+	for i, (images, labels) in enumerate(loader_pna_deits):
+		print(str(i) + " of " + str(len(loader_pna_deits)))
 
 		images = images.to(device)
 		labels = labels.to(device)

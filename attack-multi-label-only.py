@@ -111,6 +111,24 @@ def calculate_pair_scores(strategies, strategy_pairs, model, scores):
 	return scores
 
 
+def decide_strategy(a, b, scores, strategy_pairs):
+	# 1_2
+	selected = -1
+	for j in range(len(scores)):
+		if scores[j] <= a:
+			selected = strategy_pairs[j][1] + 1
+			print(str(selected) + ' is selected')  # 2nd selected
+			break
+		elif scores[j] >= b:
+			selected = strategy_pairs[j][0] + 1
+			print(str(selected) + ' is selected')  # 1st selected
+			break
+		else:
+			selected = -1
+
+	return selected
+
+
 def attack(a, b, multi_case):
 	if multi_case == '3':
 		print('multi_case 3')
@@ -130,8 +148,8 @@ def attack(a, b, multi_case):
 			y1 = y1.to(device)
 			X2 = X2.to(device)
 			y2 = y2.to(device)
-			X3 = X2.to(device)
-			y3 = y2.to(device)
+			X3 = X3.to(device)
+			y3 = y3.to(device)
 
 			if is_transform:
 				transform = transforms.Resize((224, 224))
@@ -196,6 +214,7 @@ def attack(a, b, multi_case):
 			print(scores)
 			print('# of queries: ' + str(i + 1))
 			# 1_2
+			'''
 			for j in range(len(scores)):
 				if scores[j] <= a:
 					selected = strategy_pairs3[j][1] + 1
@@ -209,6 +228,12 @@ def attack(a, b, multi_case):
 					break
 				else:
 					print('continue to test')
+			'''
+			selected = decide_strategy(a, b, scores, strategy_pairs3)
+			if selected != -1:
+				break
+			else:
+				print('continue to test')
 
 		return qnumber, selected
 

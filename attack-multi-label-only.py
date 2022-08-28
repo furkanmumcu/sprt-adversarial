@@ -17,32 +17,34 @@ from itertools import combinations
 
 
 np.set_printoptions(suppress=True)
-
-#0.000000001 20
-
 b_size = 10
+device = torch.device("cuda")
 
-# load first adv dataset
-#loader_fgsm = dt.get_loaders_v2('data/test_data_1/sprt-test-set-fgsm-1/test_data.pt', 'data/test_data_1/sprt-test-set-fgsm-1/test_labels.pt')
-#loader_cw = dt.get_loaders_v2('data/test_data_1/sprt-test-set-cw-1/test_data.pt', 'data/test_data_1/sprt-test-set-cw-1/test_labels.pt')
-loader_pgd_resnet = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/resnet/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/resnet/test_labels.pt', batch=b_size, shuffle=True)
+# attack strategies
+
 loader_pgd_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/inception/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/inception/test_labels.pt', batch=b_size, shuffle=True)
 loader_pgd_deits = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/deit-s/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/deit-s/test_labels.pt', batch=b_size, shuffle=True)
 loader_pgd_vit = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/vit-base/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/vit-base/test_labels.pt', batch=b_size, shuffle=True)
+loader_pgd_resnet = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/resnet/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/resnet/test_labels.pt', batch=b_size, shuffle=True)
 loader_pgd_vgg16 = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/vit-base/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/vit-base/test_labels.pt', batch=b_size, shuffle=True)
 
-# load second adv dataset
-#loader_patchfool = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pfool-s/test_data.pt', 'data/test_data_1/sprt-test-set-pfool-s/test_labels.pt', batch=b_size, shuffle=True)
-#loader_pna = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna/test_data.pt', 'data/test_data_1/sprt-test-set-pna/test_labels.pt', batch=5, shuffle=True)
 
-# define surrogate model
-device = torch.device("cuda")
+# target model
 
-model = models.resnet50(pretrained=True).to(device)
-#model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
-#model = models.inception_v3(pretrained=True).to(device)
-#model = models.vgg16(pretrained=True).to(device)
+model = models.inception_v3(pretrained=True).to(device)
 #model = deit_small_patch16_224(pretrained=True).to(device)
+#model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
+#model = models.resnet50(pretrained=True).to(device)
+#model = models.vgg16(pretrained=True).to(device)
+
+#model = deit_tiny_patch16_224(pretrained=True).to(device)
+#model = deit_base_patch16_224(pretrained=True).to(device)
+#model = models.resnet152(pretrained=True).to(device)
+#model = models.vgg19(pretrained=True).to(device)
+#model = timm.create_model('vit_tiny_patch16_224', pretrained=True).to(device)
+#model = timm.create_model('levit_256', pretrained=True).to(device)
+
+
 deit = False
 is_transform = False
 model.eval()
@@ -209,7 +211,7 @@ def attack(a, b, multi_case):
 		qnumber = 0
 		strategy_index_5 = [0, 1, 2, 3, 4]
 		strategy_pairs5 = sorted(map(sorted, combinations(set(strategy_index_5), 2)))
-		for i, ((X1, y1), (X2, y2), (X3, y3), (X4, y4), (X5, y5)) in enumerate(zip(loader_pgd_inception, loader_pgd_deits, loader_pgd_vit, cycle(loader_pgd_vgg16))):
+		for i, ((X1, y1), (X2, y2), (X3, y3), (X4, y4), (X5, y5)) in enumerate(zip(loader_pgd_inception, loader_pgd_deits, loader_pgd_vit, loader_pgd_resnet, cycle(loader_pgd_vgg16))):
 			print(str(i) + " of " + str(len(loader_pgd_vgg16)))
 
 			X1 = X1.to(device)

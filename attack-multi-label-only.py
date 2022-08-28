@@ -17,7 +17,7 @@ from itertools import combinations
 
 
 np.set_printoptions(suppress=True)
-b_size = 10
+b_size = 5
 device = torch.device("cuda")
 
 # attack strategies
@@ -269,7 +269,7 @@ if __name__ == '__main__':
 	expectation = 1
 
 	test_count = 1
-	multi_case = '4'
+	multi_case = '3'
 
 	a = np.log(beta / (1 - alpha))
 	b = np.log((1 - beta) / alpha)
@@ -314,12 +314,22 @@ if __name__ == '__main__':
 	# detection accuracy
 	detection_acc = match / test_count
 
-	first_acc = n_first / test_count
-	second_acc = n_second / test_count
-	third_acc = n_third / test_count
-	fourth_acc = n_fourth / test_count
-	fifth_acc = n_fifth / test_count
+	first_rate = n_first / test_count
+	second_rate = n_second / test_count
+	third_rate = n_third / test_count
+	fourth_rate = n_fourth / test_count
+	fifth_rate = n_fifth / test_count
 
-	print('expectation: ' + str(expectation) + ' 1st detection accuracy: ' + str(first_acc) + ' 2nd detection accuracy: ' + str(second_acc) + ' 3rd detection accuracy: ' + str(third_acc) + ' 4rd detection accuracy: ' + str(fourth_acc) + ' 5th detection accuracy: ' + str(fifth_acc))
+	rates = [first_rate, second_rate, third_rate, fourth_rate, fifth_rate]
+	print(rates)
+
+	target_model = 'inception'
+	strategy_accuries = utils.get_strategy_accuracies()
+	success_rate = 0
+	for i in range(len(rates)):
+		success_rate = success_rate + (rates[i] * (1 - strategy_accuries[i][target_model]))
+
+	print('expectation: ' + str(expectation) + ' 1st detection rate: ' + str(first_rate) + ' 2nd detection rate: ' + str(second_rate) + ' 3rd detection rate: ' + str(third_rate) + ' 4rd detection rate: ' + str(n_fourth) + ' 5th detection rate: ' + str(n_fifth))
 	print('a: ' + str(a) + ' b: ' + str(b) + ' attack_band: ' + str(attack_band) + ' alpha: ' + str(alpha) + ' beta: ' + str(beta))
 	print('avarage query number: ' + str(avg_qnumber) + ' detection accuracy: ' + str(detection_acc))
+	print('success rate: ' + str(success_rate))

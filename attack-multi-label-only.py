@@ -2,6 +2,7 @@ import numpy as np
 from itertools import cycle
 import torch
 import utils
+import operator
 
 import torchvision.utils
 from torchvision import models
@@ -31,10 +32,10 @@ loader_pgd_vgg16 = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/vit-b
 
 # target model
 
-model = models.inception_v3(pretrained=True).to(device)
+#model = models.inception_v3(pretrained=True).to(device)
 #model = deit_small_patch16_224(pretrained=True).to(device)
 #model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
-#model = models.resnet50(pretrained=True).to(device)
+model = models.resnet50(pretrained=True).to(device)
 #model = models.vgg16(pretrained=True).to(device)
 
 #model = deit_tiny_patch16_224(pretrained=True).to(device)
@@ -114,6 +115,31 @@ def decide_strategy(a, b, scores, strategy_pairs):
 	return selected
 
 
+def decide_strategy_v2(a, b, scores, strategy_pairs):
+	# 1_2
+	selected = -1
+	selected_list = {}
+	for j in range(len(scores)):
+		if scores[j] <= a:
+			selected = strategy_pairs[j][1] + 1
+			selected_list[selected] = a - scores[j]
+		elif scores[j] >= b:
+			selected = strategy_pairs[j][0] + 1
+			selected_list[selected] = scores[j] - b
+		else:
+			if len(selected_list) == 0:
+				selected = -1
+			elif len(selected_list) == 1:
+				selected = next(iter(selected_list))
+			else:
+				sorted_selected_list = dict(sorted(selected_list.items(), key=operator.itemgetter(1), reverse=True))
+				selected = next(iter(sorted_selected_list))
+
+	if selected != -1:
+		print(str(selected) + ' is selected')
+	return selected
+
+
 def attack(a, b, multi_case):
 	if multi_case == '3':
 		print('multi_case 3')
@@ -148,7 +174,7 @@ def attack(a, b, multi_case):
 			print(scores)
 			print('# of queries: ' + str(i + 1))
 
-			selected = decide_strategy(a, b, scores, strategy_pairs3)
+			selected = decide_strategy_v2(a, b, scores, strategy_pairs3)
 			if selected != -1:
 				break
 			else:
@@ -191,7 +217,7 @@ def attack(a, b, multi_case):
 
 			scores = calculate_pair_scores(strategies, strategy_pairs4, model, scores)
 
-			qnumber = (i + 1) * (3 * b_size)  # since we are sending  images to the target model
+			qnumber = (i + 1) * (4 * b_size)  # since we are sending  images to the target model
 			print('current scores: ')
 			print(scores)
 			print('# of queries: ' + str(i + 1))
@@ -243,7 +269,7 @@ def attack(a, b, multi_case):
 
 			scores = calculate_pair_scores(strategies, strategy_pairs5, model, scores)
 
-			qnumber = (i + 1) * (3 * b_size)  # since we are sending  images to the target model
+			qnumber = (i + 1) * (5 * b_size)  # since we are sending  images to the target model
 			print('current scores: ')
 			print(scores)
 			print('# of queries: ' + str(i + 1))
@@ -261,14 +287,14 @@ if __name__ == '__main__':
 	#0.4
 	#0.01
 	#0.00004
-	# 0.000000001
+	#0.000000001
 
-	alpha = 0.00004
-	beta = 0.00004
+	alpha = 0.000000001
+	beta = 0.000000001
 
 	expectation = 1
 
-	test_count = 1
+	test_count = 100
 	multi_case = '3'
 
 	a = np.log(beta / (1 - alpha))
@@ -323,13 +349,15 @@ if __name__ == '__main__':
 	rates = [first_rate, second_rate, third_rate, fourth_rate, fifth_rate]
 	print(rates)
 
-	target_model = 'inception'
+	target_model = 'resnet50'
 	strategy_accuries = utils.get_strategy_accuracies()
 	success_rate = 0
 	for i in range(len(rates)):
-		success_rate = success_rate + (rates[i] * (1 - strategy_accuries[i][target_model]))
+		success_rate = success_rate + (rates[i] * (100 - strategy_accuries[i][target_model]))
 
 	print('expectation: ' + str(expectation) + ' 1st detection rate: ' + str(first_rate) + ' 2nd detection rate: ' + str(second_rate) + ' 3rd detection rate: ' + str(third_rate) + ' 4rd detection rate: ' + str(n_fourth) + ' 5th detection rate: ' + str(n_fifth))
 	print('a: ' + str(a) + ' b: ' + str(b) + ' attack_band: ' + str(attack_band) + ' alpha: ' + str(alpha) + ' beta: ' + str(beta))
 	print('avarage query number: ' + str(avg_qnumber) + ' detection accuracy: ' + str(detection_acc))
 	print('success rate: ' + str(success_rate))
+
+	print(str(detection_acc * 100) + ' - ' + str(success_rate) + ' - ' + str(avg_qnumber))

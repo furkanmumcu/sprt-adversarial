@@ -1,5 +1,8 @@
 import torch
 import torchshow
+from torchvision import models
+import timm
+from models.DeiT import deit_base_patch16_224, deit_tiny_patch16_224, deit_small_patch16_224
 
 
 def eliminate_zeros(arr):
@@ -27,6 +30,27 @@ def get_strategy_accuracies():
 		 ('deit-b', 59.28), ('resnet152', 21.38), ('vgg19', 0.52), ('vit-t', 31.36)])
 
 	return [dict_pgd_inception, dict_pgd_deits, dict_pgd_vit, dict_pgd_resnet, dict_pgd_vgg16]
+
+
+def get_target_models():
+	device = torch.device("cuda")
+
+	model_1 = models.inception_v3(pretrained=True).to(device)
+	model_2 = deit_small_patch16_224(pretrained=True).to(device)
+	model_3 = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
+	model_4 = models.resnet50(pretrained=True).to(device)
+	model_5 = models.vgg16(pretrained=True).to(device)
+
+	model_6 = deit_tiny_patch16_224(pretrained=True).to(device)
+	model_7 = deit_base_patch16_224(pretrained=True).to(device)
+	model_8 = models.resnet152(pretrained=True).to(device)
+	model_9 = models.vgg19(pretrained=True).to(device)
+	model_10 = timm.create_model('vit_tiny_patch16_224', pretrained=True).to(device)
+	return [model_1, model_2, model_3, model_4, model_5, model_6, model_7, model_8, model_9, model_10]
+
+
+def get_target_model_names():
+	return ['inception', 'deit-s', 'vit-b', 'resnet50', 'vgg16', 'deit-t', 'deit-b', 'resnet152', 'vgg19', 'vit-t']
 
 
 def combine_pts():

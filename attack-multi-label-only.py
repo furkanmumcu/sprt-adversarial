@@ -35,8 +35,8 @@ loader_pgd_vgg16 = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/vit-b
 #model = models.inception_v3(pretrained=True).to(device)
 #model = deit_small_patch16_224(pretrained=True).to(device)
 #model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
-model = models.resnet50(pretrained=True).to(device)
-#model = models.vgg16(pretrained=True).to(device)
+#model = models.resnet50(pretrained=True).to(device)
+model = models.vgg16(pretrained=True).to(device)
 
 #model = deit_tiny_patch16_224(pretrained=True).to(device)
 #model = deit_base_patch16_224(pretrained=True).to(device)
@@ -47,7 +47,7 @@ model = models.resnet50(pretrained=True).to(device)
 
 
 deit = False
-is_transform = False
+is_transform = True
 model.eval()
 
 
@@ -190,7 +190,7 @@ def attack(a, b, multi_case):
 		strategy_index_4 = [0, 1, 2, 3]
 		strategy_pairs4 = sorted(map(sorted, combinations(set(strategy_index_4), 2)))
 		for i, ((X1, y1), (X2, y2), (X3, y3), (X4, y4)) in enumerate(zip(loader_pgd_inception, loader_pgd_deits, loader_pgd_vit, cycle(loader_pgd_resnet))):
-			print(str(i) + " of " + str(len(loader_pgd_resnet)))
+			#print(str(i) + " of " + str(len(loader_pgd_resnet)))
 
 			X1 = X1.to(device)
 			y1 = y1.to(device)
@@ -222,7 +222,7 @@ def attack(a, b, multi_case):
 			print(scores)
 			print('# of queries: ' + str(i + 1))
 
-			selected = decide_strategy(a, b, scores, strategy_pairs4)
+			selected = decide_strategy_v2(a, b, scores, strategy_pairs4)
 			if selected != -1:
 				break
 			else:
@@ -238,7 +238,7 @@ def attack(a, b, multi_case):
 		strategy_index_5 = [0, 1, 2, 3, 4]
 		strategy_pairs5 = sorted(map(sorted, combinations(set(strategy_index_5), 2)))
 		for i, ((X1, y1), (X2, y2), (X3, y3), (X4, y4), (X5, y5)) in enumerate(zip(loader_pgd_inception, loader_pgd_deits, loader_pgd_vit, loader_pgd_resnet, cycle(loader_pgd_vgg16))):
-			print(str(i) + " of " + str(len(loader_pgd_vgg16)))
+			#print(str(i) + " of " + str(len(loader_pgd_vgg16)))
 
 			X1 = X1.to(device)
 			y1 = y1.to(device)
@@ -274,7 +274,7 @@ def attack(a, b, multi_case):
 			print(scores)
 			print('# of queries: ' + str(i + 1))
 
-			selected = decide_strategy(a, b, scores, strategy_pairs5)
+			selected = decide_strategy_v2(a, b, scores, strategy_pairs5)
 			if selected != -1:
 				break
 			else:
@@ -289,13 +289,13 @@ if __name__ == '__main__':
 	#0.00004
 	#0.000000001
 
-	alpha = 0.000000001
-	beta = 0.000000001
+	alpha = 0.00004
+	beta = 0.00004
 
-	expectation = 1
+	expectation = 3
 
 	test_count = 100
-	multi_case = '3'
+	multi_case = '4'
 
 	a = np.log(beta / (1 - alpha))
 	b = np.log((1 - beta) / alpha)
@@ -349,13 +349,13 @@ if __name__ == '__main__':
 	rates = [first_rate, second_rate, third_rate, fourth_rate, fifth_rate]
 	print(rates)
 
-	target_model = 'resnet50'
+	target_model = 'vgg16'
 	strategy_accuries = utils.get_strategy_accuracies()
 	success_rate = 0
 	for i in range(len(rates)):
 		success_rate = success_rate + (rates[i] * (100 - strategy_accuries[i][target_model]))
 
-	print('expectation: ' + str(expectation) + ' 1st detection rate: ' + str(first_rate) + ' 2nd detection rate: ' + str(second_rate) + ' 3rd detection rate: ' + str(third_rate) + ' 4rd detection rate: ' + str(n_fourth) + ' 5th detection rate: ' + str(n_fifth))
+	print('expectation: ' + str(expectation) + ' 1st detection rate: ' + str(first_rate) + ' 2nd detection rate: ' + str(second_rate) + ' 3rd detection rate: ' + str(third_rate) + ' 4rd detection rate: ' + str(fourth_rate) + ' 5th detection rate: ' + str(fifth_rate))
 	print('a: ' + str(a) + ' b: ' + str(b) + ' attack_band: ' + str(attack_band) + ' alpha: ' + str(alpha) + ' beta: ' + str(beta))
 	print('avarage query number: ' + str(avg_qnumber) + ' detection accuracy: ' + str(detection_acc))
 	print('success rate: ' + str(success_rate))

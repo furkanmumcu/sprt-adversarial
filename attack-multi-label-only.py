@@ -35,8 +35,8 @@ loader_pgd_vgg16 = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/vit-b
 #model = models.inception_v3(pretrained=True).to(device)
 #model = deit_small_patch16_224(pretrained=True).to(device)
 #model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
-#model = models.resnet50(pretrained=True).to(device)
-model = models.vgg16(pretrained=True).to(device)
+model = models.resnet50(pretrained=True).to(device)
+#model = models.vgg16(pretrained=True).to(device)
 
 #model = deit_tiny_patch16_224(pretrained=True).to(device)
 #model = deit_base_patch16_224(pretrained=True).to(device)
@@ -47,7 +47,7 @@ model = models.vgg16(pretrained=True).to(device)
 
 
 deit = False
-is_transform = True
+is_transform = False
 model.eval()
 
 
@@ -289,13 +289,13 @@ if __name__ == '__main__':
 	#0.00004
 	#0.000000001
 
-	alpha = 0.00004
-	beta = 0.00004
+	alpha = 0.000000001
+	beta = 0.000000001
 
-	expectation = 3
+	expectation = 1
 
 	test_count = 100
-	multi_case = '4'
+	multi_case = '5'
 
 	a = np.log(beta / (1 - alpha))
 	b = np.log((1 - beta) / alpha)
@@ -349,7 +349,7 @@ if __name__ == '__main__':
 	rates = [first_rate, second_rate, third_rate, fourth_rate, fifth_rate]
 	print(rates)
 
-	target_model = 'vgg16'
+	target_model = 'resnet50'
 	strategy_accuries = utils.get_strategy_accuracies()
 	success_rate = 0
 	for i in range(len(rates)):
@@ -361,3 +361,4 @@ if __name__ == '__main__':
 	print('success rate: ' + str(success_rate))
 
 	print(str(detection_acc * 100) + ' - ' + str(success_rate) + ' - ' + str(avg_qnumber))
+	print('na ' + ' - ' + str(success_rate) + ' - ' + str(avg_qnumber))

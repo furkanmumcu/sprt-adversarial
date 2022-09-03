@@ -3,6 +3,7 @@ from itertools import cycle
 import torch
 import utils
 import operator
+import sys
 
 import torchvision.utils
 from torchvision import models
@@ -15,6 +16,32 @@ import timm
 from models.DeiT import deit_base_patch16_224, deit_tiny_patch16_224, deit_small_patch16_224
 
 from itertools import combinations
+import argparse
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--target', type=str,
+                    help='An optional integer argument')
+
+parser.add_argument('--threshold', type=str,
+                    help='An optional integer argument')
+
+parser.add_argument('--multi_case', type=str,
+                    help='An optional integer argument')
+parser.add_argument('--deit', type=str,
+                    help='An optional integer argument')
+parser.add_argument('--is_transform', type=str,
+                    help='An optional integer argument')
+parser.add_argument('--expectation', type=int,
+                    help='An optional integer argument', default=1)
+
+args = parser.parse_args()
+
+print(args.target)
+print(args.threshold)
+print(args.multi_case)
+print(args.deit)
+print(args.is_transform)
 
 
 np.set_printoptions(suppress=True)
@@ -35,7 +62,7 @@ loader_pgd_vgg16 = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/vit-b
 #model = models.inception_v3(pretrained=True).to(device)
 #model = deit_small_patch16_224(pretrained=True).to(device)
 #model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
-model = models.resnet50(pretrained=True).to(device)
+#model = models.resnet50(pretrained=True).to(device)
 #model = models.vgg16(pretrained=True).to(device)
 
 #model = deit_tiny_patch16_224(pretrained=True).to(device)
@@ -45,10 +72,13 @@ model = models.resnet50(pretrained=True).to(device)
 #model = timm.create_model('vit_tiny_patch16_224', pretrained=True).to(device)
 #model = timm.create_model('levit_256', pretrained=True).to(device)
 
-
-deit = False
-is_transform = False
+model = utils.get_target_models_v2()[args.target]
 model.eval()
+
+#deit = False
+#is_transform = False
+deit = args.deit == 'True'
+is_transform = args.is_transform == 'True'
 
 
 def calculate_pair_scores(strategies, strategy_pairs, model, scores):
@@ -289,13 +319,26 @@ if __name__ == '__main__':
 	#0.00004
 	#0.000000001
 
-	alpha = 0.000000001
-	beta = 0.000000001
+	if args.threshold == 's':
+		alpha = 0.4
+		beta = 0.4
+	elif args.threshold == 'm':
+		alpha = 0.01
+		beta = 0.01
+	elif args.threshold == 'l':
+		alpha = 0.00004
+		beta = 0.00004
+	elif args.threshold == 'xl':
+		alpha = 0.000000001
+		beta = 0.000000001
+	else:
+		raise Exception('threshold did not defined')
 
-	expectation = 1
+	expectation = args.expectation
 
 	test_count = 100
-	multi_case = '5'
+	#multi_case = '5'
+	multi_case = args.multi_case
 
 	a = np.log(beta / (1 - alpha))
 	b = np.log((1 - beta) / alpha)
@@ -362,3 +405,19 @@ if __name__ == '__main__':
 
 	print(str(detection_acc * 100) + ' - ' + str(success_rate) + ' - ' + str(avg_qnumber))
 	print('na ' + ' - ' + str(success_rate) + ' - ' + str(avg_qnumber))
+
+	line0 = ''.join(str(x) for x in sys.argv[1:])
+	line1 = 'expectation: ' + str(expectation) + ' 1st detection rate: ' + str(first_rate) + ' 2nd detection rate: ' + str(second_rate) + ' 3rd detection rate: ' + str(third_rate) + ' 4rd detection rate: ' + str(fourth_rate) + ' 5th detection rate: ' + str(fifth_rate)
+	line2 = 'a: ' + str(a) + ' b: ' + str(b) + ' attack_band: ' + str(attack_band) + ' alpha: ' + str(alpha) + ' beta: ' + str(beta)
+	line3 = 'avarage query number: ' + str(avg_qnumber) + ' detection accuracy: ' + str(detection_acc)
+	line4 = 'success rate: ' + str(success_rate)
+	line5 = str(detection_acc * 100) + ' - ' + str(success_rate) + ' - ' + str(avg_qnumber)
+	line6 = 'na ' + ' - ' + str(success_rate) + ' - ' + str(avg_qnumber)
+
+	fname = args.multi_case + '-' + args.target + '-' + args.threshold
+	lines = [line0, line1, line2, line3, line4, line5, line6]
+
+	with open('outs/' + fname + '.txt', 'w') as f:
+		for line in lines:
+			f.write(line)
+			f.write('\n')

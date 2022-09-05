@@ -392,7 +392,7 @@ if __name__ == '__main__':
 	rates = [first_rate, second_rate, third_rate, fourth_rate, fifth_rate]
 	print(rates)
 
-	target_model = 'resnet50'
+	target_model = args.target
 	strategy_accuries = utils.get_strategy_accuracies()
 	success_rate = 0
 	for i in range(len(rates)):

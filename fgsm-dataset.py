@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torchvision import models
+from models.DeiT import deit_base_patch16_224, deit_tiny_patch16_224, deit_small_patch16_224
 
 
 import dataloader as dt
@@ -15,6 +16,8 @@ def fgsm_attack(model, loss, images, labels, eps):
 	images.requires_grad = True
 
 	outputs = model(images)
+	if deit:
+		outputs = outputs[0]
 
 	model.zero_grad()
 	cost = loss(outputs, labels).to(device)
@@ -32,7 +35,10 @@ if __name__ == '__main__':
 	use_cuda = True
 
 	device = torch.device("cuda" if use_cuda else "cpu")
-	model = models.resnet50(pretrained=True).to(device)
+	#model = models.resnet50(pretrained=True).to(device)
+	model = deit_small_patch16_224(pretrained=True).to(device)
+
+	deit = True
 
 	dloader = dt.get_loaders(test_data)
 	model.eval()
@@ -62,6 +68,10 @@ if __name__ == '__main__':
 		#labels_clt = torch.cat((labels_clt, labels.cpu().detach()), 0)
 
 		outputs = model(images)
+		if deit:
+			outputs = outputs[0]
+
+		torch.save(images, 'chunk/tensor' + str(i) + '.pt')
 
 		_, pre = torch.max(outputs.data, 1)
 		total += 1

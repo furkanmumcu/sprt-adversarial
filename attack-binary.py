@@ -20,17 +20,24 @@ np.set_printoptions(suppress=True)
 
 # load first adv dataset
 #loader_fgsm = dt.get_loaders_v2('data/test_data_1/sprt-test-set-fgsm-1/test_data.pt', 'data/test_data_1/sprt-test-set-fgsm-1/test_labels.pt')
-loader_cw = dt.get_loaders_v2('data/test_data_1/sprt-test-set-cw-1/test_data.pt', 'data/test_data_1/sprt-test-set-cw-1/test_labels.pt', batch=1, shuffle=True)
+#loader_cw = dt.get_loaders_v2('data/test_data_1/sprt-test-set-cw-1/test_data.pt', 'data/test_data_1/sprt-test-set-cw-1/test_labels.pt', batch=1, shuffle=True)
 #loader_pgd = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/resnet/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/resnet/test_labels.pt', batch=1, shuffle=True)
 #loader_pgd_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/inception/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/inception/test_labels.pt', batch=1, shuffle=True)
 
 # load second adv dataset
 #loader_patchfool = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pfool-s/test_data.pt', 'data/test_data_1/sprt-test-set-pfool-s/test_labels.pt', batch=1, shuffle=True)
 #loader_pna = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna/test_data.pt', 'data/test_data_1/sprt-test-set-pna/test_labels.pt', batch=1, shuffle=True)
-loader_pna_deits = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna-deits/test_data.pt', 'data/test_data_1/sprt-test-set-pna-deits/test_labels.pt', batch=1, shuffle=True)
+#loader_pna_deits = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna-deits/test_data.pt', 'data/test_data_1/sprt-test-set-pna-deits/test_labels.pt', batch=1, shuffle=True)
+
+loader_pgd_inc_t = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-targeted/inception/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-targeted/inception/test_labels.pt', batch=1, shuffle=True)
+loader_pgd_vit_t = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-targeted/vit-b/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-targeted/vit-b/test_labels.pt', batch=1, shuffle=True)
+target_labels = loader_pgd_inc_t_labels = torch.load('data/test_data_1/sprt-test-set-pgd-targeted/inception/test_tlabels.pt')
 
 # define surrogate model
 device = torch.device("cuda")
+
+
+
 
 #model = models.resnet50(pretrained=True).to(device)
 model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
@@ -50,7 +57,7 @@ def attack(a, b):
 	qnumber = 0
 	model_decision = ''
 	# get adv dataset's accuracy and combine them
-	for i, ((X1, y1), (X2, y2)) in enumerate(zip(loader_cw, cycle(loader_pna_deits))):
+	for i, ((X1, y1), (X2, y2)) in enumerate(zip(loader_pgd_inc_t, cycle(loader_pgd_vit_t))):
 		#print(str(i) + " of " + str(len(loader_pna)))
 
 		if i == 245:
@@ -150,8 +157,8 @@ if __name__ == '__main__':
 	#0.00004
 	#0.000000001
 
-	alpha = 0.000000001
-	beta = 0.000000001
+	alpha = 0.00004
+	beta = 0.00004
 
 	a = np.log(beta / (1 - alpha))
 	b = np.log((1 - beta) / alpha)

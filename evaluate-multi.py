@@ -25,7 +25,12 @@ device = torch.device("cuda" if use_cuda else "cpu")
 #loader_fgsm_deits = dt.get_loaders_v2('data/test_data_1/sprt-test-set-fgsm-deits/test_data.pt', 'data/test_data_1/sprt-test-set-fgsm-deits/test_labels.pt')
 #loader_pgd_deits = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/deit-s/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/deit-s/test_labels.pt')
 #loader_pfool_deits = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pfool-s/test_data.pt', 'data/test_data_1/sprt-test-set-pfool-s/test_labels.pt')
-loader_pna_deits = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna-deits/test_data.pt', 'data/test_data_1/sprt-test-set-pna-deits/test_labels.pt')
+#loader_pna_deits = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna-deits/test_data.pt', 'data/test_data_1/sprt-test-set-pna-deits/test_labels.pt')
+
+loader_fgsm_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-fgsm-inception/test_data.pt', 'data/test_data_1/sprt-test-set-fgsm-inception/test_labels.pt')
+#loader_pgd_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/inception/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/inception/test_labels.pt')
+#loader_cw_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-cw-1/test_data.pt', 'data/test_data_1/sprt-test-set-cw-1/test_labels.pt')
+#loader_pna_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna-inception/test_data.pt', 'data/test_data_1/sprt-test-set-pna-inception/test_labels.pt')
 
 
 def evaluate(model, deit, is_transform):
@@ -34,8 +39,8 @@ def evaluate(model, deit, is_transform):
 	correct = 0
 	total = 0
 
-	for i, (images, labels) in enumerate(loader_pna_deits):
-		print(str(i) + " of " + str(len(loader_pna_deits)))
+	for i, (images, labels) in enumerate(loader_fgsm_inception):
+		print(str(i) + " of " + str(len(loader_fgsm_inception)))
 
 		images = images.to(device)
 		labels = labels.to(device)
@@ -85,5 +90,7 @@ if __name__ == '__main__':
 
 		s_rate = evaluate(model, deit, is_transform)
 		s_rates.append(s_rate)
+		del model
+		torch.cuda.empty_cache()
 
 	print(s_rates)

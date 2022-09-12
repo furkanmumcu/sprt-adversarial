@@ -27,21 +27,24 @@ if __name__ == '__main__':
 
 	device = torch.device("cuda" if use_cuda else "cpu")
 	#model = models.resnet50(pretrained=True).to(device)
-	model = models.resnet101(pretrained=True).to(device)
+	#model = models.resnet101(pretrained=True).to(device)
 	#model = models.vgg16(pretrained=True).to(device)
 	#model = models.inception_v3(pretrained=True).to(device)
 	#model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
-	#model = deit_small_patch16_224(pretrained=True).to(device)
+	model = deit_small_patch16_224(pretrained=True).to(device)
 	#model = deit_tiny_patch16_224(pretrained=True).to(device)
 	#model = deit_base_patch16_224(pretrained=True).to(device)
-	deit = False
+	deit = True
 	is_transform = False
 
 	#loader_pgd_inc_t = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-targeted/inception/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-targeted/inception/test_labels.pt')
 	#loader_pgd_inc_t_labels = torch.load('data/test_data_1/sprt-test-set-pgd-targeted/inception/test_tlabels.pt')
 
-	loader_pgd_resnet_t = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-targeted/resnet/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-targeted/resnet/test_labels.pt')
-	loader_pgd_resnet_t_labels = torch.load('data/test_data_1/sprt-test-set-pgd-targeted/resnet/test_tlabels.pt')
+	#loader_pgd_resnet_t = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-targeted/resnet/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-targeted/resnet/test_labels.pt')
+	#loader_pgd_resnet_t_labels = torch.load('data/test_data_1/sprt-test-set-pgd-targeted/resnet/test_tlabels.pt')
+
+	loader_pgd_vit_t = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-targeted/vit-b/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-targeted/vit-b/test_labels.pt')
+	loader_pgd_vit_t_labels = torch.load('data/test_data_1/sprt-test-set-pgd-targeted/vit-b/test_tlabels.pt')
 
 	print("True Image & Predicted Label")
 
@@ -51,15 +54,15 @@ if __name__ == '__main__':
 	total = 0
 	target_label_success = 0
 
-	for i, (images, labels) in enumerate(loader_pgd_resnet_t):
-		print(str(i) + " of " + str(len(loader_pgd_resnet_t)))
+	for i, (images, labels) in enumerate(loader_pgd_vit_t):
+		print(str(i) + " of " + str(len(loader_pgd_vit_t)))
 
 		images = images.to(device)
 		labels = labels.to(device)
 
 		tlabels = []
 		for j in range(10):  # batch size = 10
-			tlabels.append(loader_pgd_resnet_t_labels[(i*10) + j])
+			tlabels.append(loader_pgd_vit_t_labels[(i*10) + j])
 		tlabels = np.asarray(tlabels)
 		tlabels = torch.from_numpy(tlabels)
 		tlabels = tlabels.to(device)
@@ -80,5 +83,10 @@ if __name__ == '__main__':
 		target_label_success += (pre == tlabels).sum()
 		correct += (pre == labels).sum()
 
+	acc = (100 * float(correct) / (total*10))
+	sr = 100 - acc
+	t_sr = (100 * float(target_label_success) / (total * 10))
+
 	print('Accuracy of test text: %f %%' % (100 * float(correct) / (total*10)))
 	print('target label success: %f %%' % (100 * float(target_label_success) / (total * 10)))
+	print('sr: ' + str(sr) + ' - ' + 't_sr: ' + str(t_sr))

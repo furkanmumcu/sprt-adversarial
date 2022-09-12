@@ -63,11 +63,11 @@ def pgd_attack(model, images, labels, eps=0.3, alpha=2 / 255, iters=40):
 
 device = torch.device("cuda")
 #model = models.inception_v3(pretrained=True).to(device)
-model = models.resnet50(pretrained=True).to(device)
-#model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
+#model = models.resnet50(pretrained=True).to(device)
+model = timm.create_model('vit_base_patch16_224', pretrained=True).to(device)
 #model = deit_small_patch16_224(pretrained=True).to(device)
 
-is_Transform = False
+is_Transform = True
 deit = False
 
 dloader_clean = dt.get_loaders_v2('data/test_data_1/sprt-test-set-clean-pt-224/test_data.pt', 'data/test_data_1/sprt-test-set-clean-pt-224/test_labels.pt')
@@ -102,7 +102,7 @@ if generate_mode:
 	total = 0
 	target_label_success = 0
 	for i, (images, labels) in enumerate(dloader_clean):
-		if i >= 202:
+		if i >= 0:
 			print(str(i) + " of " + str(len(dloader_clean)))
 			labels = labels.type(torch.long)
 			result = pgd_attack(model, images, labels)

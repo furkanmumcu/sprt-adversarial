@@ -36,11 +36,12 @@ if __name__ == '__main__':
 
 	device = torch.device("cuda" if use_cuda else "cpu")
 	#model = models.resnet50(pretrained=True).to(device)
-	model = deit_small_patch16_224(pretrained=True).to(device)
+	model = models.inception_v3(pretrained=True).to(device)
+	#model = deit_small_patch16_224(pretrained=True).to(device)
 
-	deit = True
+	deit = False
 
-	dloader = dt.get_loaders(test_data)
+	dloader = dt.get_loaders(test_data, size=299)
 	model.eval()
 
 	print("Attack Image & Predicted Label")

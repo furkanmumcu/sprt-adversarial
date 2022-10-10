@@ -56,10 +56,15 @@ if __name__ == '__main__':
 	############################################################################################################################################################
 
 	#loader_pgd_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/inception/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/inception/test_labels.pt')
-	loader_pgd_deit_s = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/deit-s/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/deit-s/test_labels.pt')
+	#loader_pgd_deit_s = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/deit-s/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/deit-s/test_labels.pt')
 	#loader_pgd_vit_base = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/vit-base/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/vit-base/test_labels.pt')
 	#loader_pgd_resnet = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/resnet/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/resnet/test_labels.pt')
 	#loader_pgd_vgg16 = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/vgg16/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/vgg16/test_labels.pt')
+
+	#loader_fgsm_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-fgsm-inception/test_data.pt', 'data/test_data_1/sprt-test-set-fgsm-inception/test_labels.pt')
+	#loader_pgd_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/inception/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/inception/test_labels.pt')
+	#loader_cw_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-cw-1/test_data.pt', 'data/test_data_1/sprt-test-set-cw-1/test_labels.pt')
+	loader_pna_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna-inception/test_data.pt', 'data/test_data_1/sprt-test-set-pna-inception/test_labels.pt')
 
 	###
 
@@ -71,9 +76,9 @@ if __name__ == '__main__':
 
 	#model = deit_tiny_patch16_224(pretrained=True).to(device)
 	#model = deit_base_patch16_224(pretrained=True).to(device)
-	#model = models.resnet152(pretrained=True).to(device)
+	model = models.resnet152(pretrained=True).to(device)
 	#model = models.vgg19(pretrained=True).to(device)
-	model = timm.create_model('vit_tiny_patch16_224', pretrained=True).to(device)
+	#model = timm.create_model('vit_tiny_patch16_224', pretrained=True).to(device)
 	#model = timm.create_model('levit_256', pretrained=True).to(device)
 
 	deit = False
@@ -86,8 +91,8 @@ if __name__ == '__main__':
 	correct = 0
 	total = 0
 
-	for i, (images, labels) in enumerate(loader_pgd_deit_s):
-		print(str(i) + " of " + str(len(loader_pgd_deit_s)))
+	for i, (images, labels) in enumerate(loader_pna_inception):
+		print(str(i) + " of " + str(len(loader_pna_inception)))
 
 		images = images.to(device)
 		labels = labels.to(device)

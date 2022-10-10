@@ -27,10 +27,10 @@ device = torch.device("cuda" if use_cuda else "cpu")
 #loader_pfool_deits = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pfool-s/test_data.pt', 'data/test_data_1/sprt-test-set-pfool-s/test_labels.pt')
 #loader_pna_deits = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna-deits/test_data.pt', 'data/test_data_1/sprt-test-set-pna-deits/test_labels.pt')
 
-loader_fgsm_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-fgsm-inception/test_data.pt', 'data/test_data_1/sprt-test-set-fgsm-inception/test_labels.pt')
+#loader_fgsm_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-fgsm-inception/test_data.pt', 'data/test_data_1/sprt-test-set-fgsm-inception/test_labels.pt')
 #loader_pgd_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pgd-1/inception/test_data.pt', 'data/test_data_1/sprt-test-set-pgd-1/inception/test_labels.pt')
 #loader_cw_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-cw-1/test_data.pt', 'data/test_data_1/sprt-test-set-cw-1/test_labels.pt')
-#loader_pna_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna-inception/test_data.pt', 'data/test_data_1/sprt-test-set-pna-inception/test_labels.pt')
+loader_pna_inception = dt.get_loaders_v2('data/test_data_1/sprt-test-set-pna-inception/test_data.pt', 'data/test_data_1/sprt-test-set-pna-inception/test_labels.pt')
 
 
 def evaluate(model, deit, is_transform):
@@ -39,8 +39,8 @@ def evaluate(model, deit, is_transform):
 	correct = 0
 	total = 0
 
-	for i, (images, labels) in enumerate(loader_fgsm_inception):
-		print(str(i) + " of " + str(len(loader_fgsm_inception)))
+	for i, (images, labels) in enumerate(loader_pna_inception):
+		print(str(i) + " of " + str(len(loader_pna_inception)))
 
 		images = images.to(device)
 		labels = labels.to(device)
@@ -71,11 +71,12 @@ if __name__ == '__main__':
 	model_names = utils.get_target_model_names()
 
 	s_rates = []
-	for i in range(len(models)):
+	for i in range(0, len(models)):
 		model = models[i]
 		model_name = model_names[i]
 
 		print()
+		print(s_rates)
 		print('Evaluating for ' + model_name)
 
 		if model_name == 'deit-s' or model_name == 'deit-t' or model_name == 'deit-b':
@@ -88,9 +89,14 @@ if __name__ == '__main__':
 		else:
 			is_transform = False
 
-		s_rate = evaluate(model, deit, is_transform)
+		if i != 7:
+			s_rate = evaluate(model, deit, is_transform)
+		else:
+			s_rate = -111
+
 		s_rates.append(s_rate)
 		del model
-		torch.cuda.empty_cache()
+		with torch.no_grad():
+			torch.cuda.empty_cache()
 
 	print(s_rates)
